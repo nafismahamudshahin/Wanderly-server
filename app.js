@@ -48,6 +48,13 @@ app.post("/destination", async (req, res) => {
     res.send({ success: true, result })
 })
 
+app.patch('/destination/:id', async (req, res) => {
+    const id = req.params.id;
+    const udatedDestination = req.body;
+    console.log(udatedDestination)
+    const result = await destinations.updateOne({ _id: new ObjectId(id) }, { $set: udatedDestination })
+    res.send(result);
+})
 
 app.listen(PORT, (req, res) => {
     console.log(`Server running on Port ${PORT}`);
