@@ -25,11 +25,23 @@ export async function connectToMongoDb() {
 
 const connedtedWithDb = await connectToMongoDb();
 const db = connedtedWithDb.db("wanderlyDb");
-const users = db.collection("users");
+const destinations = db.collection("destinations");
 
 app.get('/', (req, res) => {
     res.send({ message: "Server running.." })
 })
+
+app.get("/destination", async (req, res) => {
+    const allDestination = await destinations.find().toArray();
+    res.send(allDestination);
+})
+
+app.post("/destination", async (req, res) => {
+    const { name, country, category, price, duration, departureDate, image, description } = req.body;
+    const result = await destinations.insertOne({ name, country, category, price, duration, departureDate, image, description });
+    res.send({ success: true, result })
+})
+
 
 app.listen(PORT, (req, res) => {
     console.log(`Server running on Port ${PORT}`);
