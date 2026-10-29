@@ -26,6 +26,7 @@ export async function connectToMongoDb() {
 const connedtedWithDb = await connectToMongoDb();
 const db = connedtedWithDb.db("wanderlyDb");
 const destinations = db.collection("destinations");
+const booking = db.collection("booking");
 
 app.get('/', (req, res) => {
     res.send({ message: "Server running.." })
@@ -51,11 +52,30 @@ app.post("/destination", async (req, res) => {
 app.patch('/destination/:id', async (req, res) => {
     const id = req.params.id;
     const udatedDestination = req.body;
-    console.log(udatedDestination)
     const result = await destinations.updateOne({ _id: new ObjectId(id) }, { $set: udatedDestination })
     res.send(result);
 })
 
+app.delete("/destination/:id", async (req, res) => {
+    const id = req.params.id;
+    const iNeedToDeleteThisItem = destinations.deleteOne({ _id: new ObjectId(id) });
+    res.send(iNeedToDeleteThisItem);
+})
+
+// my booking:
+app.get("/booking/:email", (req, res) => {
+    const email = req.email;
+    const getAllBookingData = booking.find({ email: email }).toArray();
+    res.json(getAllBookingData);
+})
+app.post("/booking", async (req, res) => {
+    const bookingData = req.body;
+    const result = await booking.insertOne(bookingData);
+
+    res.send({ success: true, result })
+})
 app.listen(PORT, (req, res) => {
     console.log(`Server running on Port ${PORT}`);
 })
+
+export default app;
