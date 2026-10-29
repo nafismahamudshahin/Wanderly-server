@@ -63,16 +63,31 @@ app.delete("/destination/:id", async (req, res) => {
 })
 
 // my booking:
-app.get("/booking/:email", (req, res) => {
-    const email = req.email;
-    const getAllBookingData = booking.find({ email: email }).toArray();
-    res.json(getAllBookingData);
+app.get("/booking/:email", async (req, res) => {
+    const email = req.params.email;
+    try {
+        const getAllBookingData = await booking.find({ email: email }).toArray();
+        res.json(getAllBookingData);
+    } catch (error) {
+        res.status(500).send({ success: false, message: "Could not load bookings." });
+    }
 })
 app.post("/booking", async (req, res) => {
     const bookingData = req.body;
     const result = await booking.insertOne(bookingData);
 
     res.send({ success: true, result })
+})
+app.delete("/booking/:id", async (req, res) => {
+    try {
+        const result = await booking.deleteOne({ _id: new ObjectId(req.params.id) });
+        if (result.deletedCount === 0) {
+            return res.status(404).send({ success: false, message: "Booking not found." });
+        }
+        res.send({ success: true, result });
+    } catch (error) {
+        res.status(400).send({ success: false, message: "Invalid booking id." });
+    }
 })
 app.listen(PORT, (req, res) => {
     console.log(`Server running on Port ${PORT}`);
